@@ -80,7 +80,7 @@ def upgma(matrix, length, dictionary, names_of_sequences):
         number_of_clusters = number_of_clusters + 1
         count = count + 1
 
-        min_index_i, min_index_j = minimum_of_matrix(matrix, length)
+        min_index_i, min_index_j = minimum_of_matrix(matrix)
 
         leaves.append("S" + str(number_of_clusters))
         distance = matrix[min_index_i][min_index_j] / float(2)

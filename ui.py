@@ -79,28 +79,27 @@ def app_creation():
         )
         if distance_matrix_file is not None:
             st.session_state.distance_matrix, st.session_state.names_of_sequences = read_input_for_distance_matrix(distance_matrix_file)
+            # validation for the matrix
 
-    # validation for the matrix
+            dm = st.session_state.distance_matrix
+            names = st.session_state.names_of_sequences
 
-    dm = st.session_state.distance_matrix
-    names = st.session_state.names_of_sequences
-
-    # Check for square matrix
-    if len(dm) != len(dm[0]):
-        st.error("Distance matrix must be square (same number of rows and columns).")
-        st.stop()
-
-    # Check matrix size matches names
-    if len(dm) != len(names):
-        st.error("Number of sequence names does not match matrix dimensions.")
-        st.stop()
-
-    # Check for symmetry
-    for i in range(len(dm)):
-        for j in range(len(dm)):
-            if dm[i][j] != dm[j][i]:
-                st.error("Distance matrix must be symmetric.")
+            # Check for square matrix
+            if len(dm) != len(dm[0]):
+                st.error("Distance matrix must be square (same number of rows and columns).")
                 st.stop()
+
+            # Check matrix size matches names
+            if len(dm) != len(names):
+                st.error("Number of sequence names does not match matrix dimensions.")
+                st.stop()
+
+            # Check for symmetry
+            for i in range(len(dm)):
+                for j in range(len(dm)):
+                    if dm[i][j] != dm[j][i]:
+                        st.error("Distance matrix must be symmetric.")
+                        st.stop()
 
     st.markdown("### Current Sequences")
     st.write(st.session_state.names_of_sequences)
@@ -115,7 +114,7 @@ def app_creation():
     with col3:
         mismatch_value = st.number_input("Mismatch penalty", value=-1.0, step=1.0, format="%.2f")
 
-    if st.button("Run MSA Star"):
+    if st.button("Run the algorithm"):
         sequences_exist = any(seq.strip() for seq in new_sequences)
         matrix_exists = st.session_state.distance_matrix is not None
 
