@@ -2,16 +2,22 @@ import numpy as np
 from phytree import *
 
 
-def read_input(uploaded_file):
+def read_input_for_distance_matrix(uploaded_file):
     """
-        Parse a distance matrix from a file-like UploadedFile object.
+    Parses a distance matrix from a file-like UploadedFile object.
 
-        Args:
-            uploaded_file (UploadedFile): The uploaded file from Streamlit.
+    The file is expected to have the sequence names in the first line,
+    followed by rows of distance values.
 
-        Returns:
-            tuple: (2D distance matrix as list of lists, list of sequence names)
-        """
+    Args:
+        uploaded_file (UploadedFile): The uploaded file from Streamlit.
+
+    Returns:
+        tuple: A tuple containing:
+            - matrix (list[list[float]]): 2D distance matrix.
+            - names (list[str]): List of sequence names.
+    """
+
     matrix = []
     names = []
 
@@ -29,6 +35,16 @@ def read_input(uploaded_file):
     return matrix, names
 
 def minimum_of_matrix(matrix):
+    """
+        Finds the indices of the smallest non-diagonal value in a matrix.
+
+        Args:
+            matrix (list[list[float]]): A square distance matrix.
+
+        Returns:
+            tuple: Indices (i, j) of the minimum non-diagonal value.
+    """
+
     temp = np.array(matrix)
     np.fill_diagonal(temp, np.inf)
 
@@ -39,6 +55,19 @@ def minimum_of_matrix(matrix):
 
 
 def upgma(matrix, length, dictionary, names_of_sequences):
+    """
+        Constructs a UPGMA (Unweighted Pair Group Method with Arithmetic Mean) tree.
+
+        Args:
+            matrix (list[list[float]]): Initial distance matrix.
+            length (int): Number of sequences (rows/columns in the matrix).
+            dictionary (dict): Dictionary to hold cluster tree structure.
+            names_of_sequences (list[str]): List of initial sequence names.
+
+        Returns:
+            str: The name of the final root cluster node.
+    """
+
     leaves = []
     count = 0
 
@@ -101,6 +130,17 @@ def upgma(matrix, length, dictionary, names_of_sequences):
     return "S" + str(number_of_clusters)
 
 def print_cluster(dictionary, final_cluster):
+    """
+        Generates a Newick-style tree string from the cluster dictionary.
+
+        Args:
+            dictionary (dict): Dictionary representing the UPGMA cluster structure.
+            final_cluster (str): The root node of the final cluster.
+
+        Returns:
+            list[str]: List of strings that, when joined, form the Newick format tree.
+    """
+
     stack = []
     result = []
     stack.append(final_cluster)

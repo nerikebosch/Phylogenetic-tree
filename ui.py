@@ -13,6 +13,18 @@ import itertools
 
 
 def app_creation():
+    """
+        Launches the Streamlit web application for MSA and phylogenetic tree generation.
+
+        This function handles:
+        - Sequence input via text fields or file upload.
+        - Distance matrix input via file upload.
+        - Running MSA (Star Algorithm) with Needleman-Wunsch alignment.
+        - Calculating alignment statistics and score.
+        - Displaying and downloading distance matrix and UPGMA tree in Newick format.
+        - Rendering phylogenetic tree graphics and downloadable report.
+    """
+
     st.set_page_config(layout="wide")
     st.title("MSA Star Algorithm")
 
@@ -66,7 +78,29 @@ def app_creation():
             key="distance_matrix_file"
         )
         if distance_matrix_file is not None:
-            st.session_state.distance_matrix, st.session_state.names_of_sequences = read_input(distance_matrix_file)
+            st.session_state.distance_matrix, st.session_state.names_of_sequences = read_input_for_distance_matrix(distance_matrix_file)
+
+    # validation for the matrix
+
+    dm = st.session_state.distance_matrix
+    names = st.session_state.names_of_sequences
+
+    # Check for square matrix
+    if len(dm) != len(dm[0]):
+        st.error("Distance matrix must be square (same number of rows and columns).")
+        st.stop()
+
+    # Check matrix size matches names
+    if len(dm) != len(names):
+        st.error("Number of sequence names does not match matrix dimensions.")
+        st.stop()
+
+    # Check for symmetry
+    for i in range(len(dm)):
+        for j in range(len(dm)):
+            if dm[i][j] != dm[j][i]:
+                st.error("Distance matrix must be symmetric.")
+                st.stop()
 
     st.markdown("### Current Sequences")
     st.write(st.session_state.names_of_sequences)
@@ -133,8 +167,7 @@ def app_creation():
                     score_mat = algorithm(seq1, seq2, mat, gap_value, match_value, mismatch_value)
                     path = traceback(score_mat, seq1, seq2, gap_value, match_value, mismatch_value)
                     new_c, new_s = reconstruct_alignment(seq1, seq2, path)
-                    aligned_center, realigned_s, aligned_others = merge_alignment(aligned_center, new_c, new_s,
-                                                                                  aligned_others)
+                    aligned_center, realigned_s, aligned_others = merge_alignment(aligned_center, new_c, new_s, aligned_others)
 
                 msa = [aligned_center] + aligned_others
 
@@ -164,13 +197,13 @@ def app_creation():
                 st.code(st.session_state.distance_matrix)
 
                 dictionary = {}
-                finalCluster = upgma(
+                final_cluster = upgma(
                     st.session_state.distance_matrix,
                     len(msa),
                     dictionary,
                     st.session_state.names_of_sequences
                 )
-                result = ''.join(print_cluster(dictionary, finalCluster)) + ";"
+                result = ''.join(print_cluster(dictionary, final_cluster)) + ";"
                 st.markdown("### Newick Tree Output")
                 st.code(result)
 
@@ -201,13 +234,13 @@ def app_creation():
             st.code(st.session_state.distance_matrix)
 
             dictionary = {}
-            finalCluster = upgma(
+            final_cluster = upgma(
                 st.session_state.distance_matrix,
                 len(st.session_state.distance_matrix),
                 dictionary,
                 st.session_state.names_of_sequences
             )
-            result = ''.join(print_cluster(dictionary, finalCluster)) + ";"
+            result = ''.join(print_cluster(dictionary, final_cluster)) + ";"
             st.markdown("### Newick Tree Output")
             st.code(result)
 
