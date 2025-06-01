@@ -1,3 +1,5 @@
+import numpy as np
+
 def merge_alignment(prev_center, new_center, new_seq, aligned_others):
     """
         Merge a new sequence into an existing MSA using a new center sequence.
@@ -58,3 +60,21 @@ def project_onto_master(master: str, seq):
         p += 1
 
     return "".join(out)
+
+def msa_distance_matrix(aligned_seqs):
+    n = len(aligned_seqs)
+    length = len(aligned_seqs[0])
+    matrix = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i+1, n):
+            matches = 0
+            total = 0
+            for a, b in zip(aligned_seqs[i], aligned_seqs[j]):
+                if a != '-' and b != '-':
+                    total += 1
+                    if a == b:
+                        matches += 1
+            distance = 1 - (matches / total) if total > 0 else 1.0
+            matrix[i][j] = matrix[j][i] = distance
+    return matrix

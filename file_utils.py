@@ -15,12 +15,14 @@ def load_fasta_sequences(input_file):
     """
 
     fasta_sequences = []
+    names_of_sequences = []
 
     stringio = StringIO(input_file.getvalue().decode('utf-8'))
     for sequence in SeqIO.parse(stringio, "fasta"):
         fasta_sequences.append(str(sequence.seq))
+        names_of_sequences.append(str(sequence.name))
 
-    return fasta_sequences
+    return fasta_sequences, names_of_sequences
 
 
 def get_text(scoring, identity_percentage, match_amount, gap_amount, mismatch_amount, sequences, match_value,

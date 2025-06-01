@@ -5,6 +5,7 @@ from file_utils import *
 from needleman_algorithm import *
 from msa_algorithm import *
 from upgma_algorithm import *
+from phytree import *
 from graph import *
 import streamlit as st
 import numpy as np
@@ -41,17 +42,21 @@ def app_creation():
     # Initialize session state
     if "sequences" not in st.session_state:
         st.session_state.sequences = [""]
+        st.session_state.names_of_sequences = [""]
 
     # Function to add a new sequence
     def add_sequence():
         st.session_state.sequences.append("")
+        st.session_state.names_of_sequences.append("")
 
     # Function to remove a sequence by index
     def remove_sequence(index):
         if len(st.session_state.sequences) > 1:
             st.session_state.sequences.pop(index)
+            st.session_state.names_of_sequences.pop(index)
 
     new_sequences = []
+    names_of_sequences = []
 
     st.markdown("### Input Sequences")
     col1, col2 = st.columns(2)
@@ -78,9 +83,10 @@ def app_creation():
             "Choose a file for all the sequences", type="fasta", key="seq_file"
         )
         if seq_file is not None:
-            st.session_state.sequences = load_fasta_sequences(seq_file)
+            st.session_state.sequences, st.session_state.names_of_sequences = load_fasta_sequences(seq_file)
 
     st.markdown("### Current Sequences")
+    st.write(st.session_state.names_of_sequences)
     st.write(st.session_state.sequences)
     st.divider()
 
@@ -179,6 +185,8 @@ def app_creation():
             # Final MSA display
             msa = [aligned_center] + aligned_others
 
+
+
             identity_percent = calculate_identity_percentage(msa)
             scoring = calculate_msa_score(msa, match_value, mismatch_value, gap_value)
             st.markdown(f"### MSA Score")
@@ -236,6 +244,25 @@ def app_creation():
             st.markdown("### MSA Heatmap")
             fig = plot_msa_heatmap(msa)
             st.pyplot(fig)
+
+            distance_matrix = []
+            distance_matrix = msa_distance_matrix(msa)
+
+            st.markdown("### Distance Matrix")
+            st.write(msa)
+            st.code(distance_matrix, language=None)
+
+            minimum_of_matrix(distance_matrix, len(msa))
+            dictionary = {}
+            finalCluster = upgma(distance_matrix, len(msa), dictionary, st.session_state.names_of_sequences)
+            result = print_cluster(dictionary, finalCluster)
+            result = ''.join(result)
+            result = result + ";"
+            st.write(result)
+
+            tv = create_image_of_phytree(result)
+            st.pyplot(tv)
+
 
             st.divider()
 
