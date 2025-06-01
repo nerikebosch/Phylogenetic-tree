@@ -1,0 +1,12 @@
+Scoring Parameters:
+    - Match value: 1.0
+    - Mismatch value: -1.0
+    - Gap value: -2.0
+    
+    Input Type: Raw Sequences
+
+Sequences:
+Turtle: 
+
+UPGMA Tree (Newick Format):
+(((((Monkey:0.5,Man:0.5):5.75,Dog:6.25):1.625,(Chicken:4.0,Turtle:4.0):3.875):10.3125,Tuna:14.1875):4.03125,Moth:18.21875);

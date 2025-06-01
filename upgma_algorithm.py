@@ -2,34 +2,39 @@ import numpy as np
 from phytree import *
 
 
-def read_input():
+def read_input(uploaded_file):
+    """
+        Parse a distance matrix from a file-like UploadedFile object.
+
+        Args:
+            uploaded_file (UploadedFile): The uploaded file from Streamlit.
+
+        Returns:
+            tuple: (2D distance matrix as list of lists, list of sequence names)
+        """
     matrix = []
-    with open('UPGMA_Input.txt') as f:
-        matrix = [[float(x) for x in ln.split()] for ln in f]
-    matrix = np.asarray(matrix)
-    length = len(matrix)
-    print("Distance matrix:")
-    print(matrix)
-    print("")
-    print("Number of sequences:", length)
-    print("")
-    return matrix, length
+    names = []
 
-def minimum_of_matrix(matrix, length):
-    min_index_i = 0
-    min_index_j = 0
-    minimum = float('inf')
+    content = uploaded_file.getvalue().decode('utf-8').splitlines()
 
-    for i in range(length):
-        temp = matrix[i]
-        min_value = np.min(temp[np.nonzero(temp)])
-        j = temp.tolist().index(min_value)
+    # First line contains the names
+    names = content[0].strip().split()
 
-        if min_value < minimum:
-            minimum = min_value
-            min_index_i = i
-            min_index_j = j
+    # Remaining lines contain the matrix rows
+    for line in content[1:]:
+        parts = line.strip().split()
+        row = list(map(float, parts))
+        matrix.append(row)
 
+    return matrix, names
+
+def minimum_of_matrix(matrix):
+    temp = np.array(matrix)
+    np.fill_diagonal(temp, np.inf)
+
+    min_value = np.min(temp[np.nonzero(temp)])
+    result = np.where(temp == min_value)
+    min_index_i, min_index_j = result[0][0], result[1][0]
     return min_index_i, min_index_j
 
 
@@ -95,16 +100,10 @@ def upgma(matrix, length, dictionary, names_of_sequences):
 
     return "S" + str(number_of_clusters)
 
-
-'''
-This is the function used to print the cluster resulting as a result of the upgma method
-'''
-
-
-def print_cluster(dictionary, finalCluster):
+def print_cluster(dictionary, final_cluster):
     stack = []
     result = []
-    stack.append(finalCluster)
+    stack.append(final_cluster)
     while stack:
 
         current = stack.pop()
@@ -129,15 +128,3 @@ def print_cluster(dictionary, finalCluster):
     result.pop()
     result.append(")")
     return result
-
-if __name__ == "__main__":
-    matrix, length = read_input()
-    dictionary = {}
-    finalCluster = upgma(matrix, length, dictionary)
-    result = print_cluster(dictionary, finalCluster)
-    result=''.join(result)
-    result = result+";"
-    print(result)
-
-    create_image_of_phytree(result)
-

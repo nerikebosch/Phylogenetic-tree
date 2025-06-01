@@ -1,6 +1,5 @@
 import phytreeviz
 from phytreeviz import *
-import matplotlib.pyplot as plt
 
 def create_image_of_phytree(filename):
     tv = TreeViz(filename)

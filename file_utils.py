@@ -1,7 +1,6 @@
 from io import StringIO
 from Bio import SeqIO
 
-
 # load sequence from fasta file
 def load_fasta_sequences(input_file):
     """
@@ -25,44 +24,46 @@ def load_fasta_sequences(input_file):
     return fasta_sequences, names_of_sequences
 
 
-def get_text(scoring, identity_percentage, match_amount, gap_amount, mismatch_amount, sequences, match_value,
-             mismatch_value, gap_value):
+def get_text(input_type, match_value, mismatch_value, gap_value,
+             sequence_names=None, sequences=None, distance_matrix=None, newick_tree=None):
     """
-        Generate a formatted string summarizing sequence alignment results.
+    Generate a formatted report string for phylogenetic tree analysis using UPGMA.
 
-        Args:
-            scoring (str): Description or method of the scoring system used.
-            identity_percentage (float): Percentage of identical positions in the alignment.
-            match_amount (int): Number of matches found in the alignment.
-            gap_amount (int): Number of gaps in the alignment.
-            mismatch_amount (int): Number of mismatches in the alignment.
-            sequences (list[str]): List of sequences involved in the alignment.
-            match_value (float): Score assigned to a match.
-            mismatch_value (float): Score assigned to a mismatch.
-            gap_value (float): Score assigned to a gap.
-
-        Returns:
-            str: A formatted string containing alignment summary and scoring details.
+    Returns:
+        str: Formatted summary including input data, scoring, and tree.
     """
 
-    sequences_text = "\n".join([f"s{i + 1}: {seq}" for i, seq in enumerate(sequences)])
+    text = ""
 
-    text = f"""
-    {sequences_text}
-
-    Scoring: {scoring}
-    Identity Percentage: {identity_percentage:.2f}%
-
-    Match value: {match_value:.2f}
-    Gap value: {gap_value:.2f}
-    Mismatch value: {mismatch_value:.2f}
-
-    Number of Matches: {match_amount}
-    Number of Gaps: {gap_amount}
-    Number of Mismatches: {mismatch_amount}
-
+    # 1. Scoring details
+    text += f"""Scoring Parameters:
+    - Match value: {match_value}
+    - Mismatch value: {mismatch_value}
+    - Gap value: {gap_value}
+    
     """
+
+    # 2. Input data
+    if input_type is "Distance Matrix":
+        text += "Input Type: Distance Matrix\n\n"
+        text += "Sequence Names:\n"
+        for name in sequence_names:
+            text += f"- {name}\n"
+        text += "\nDistance Matrix:\n"
+        for row in distance_matrix:
+            text += "\t".join(map(str, row)) + "\n"
+    else:
+        text += "Input Type: Raw Sequences\n\n"
+        text += "Sequences:\n"
+        for name, seq in zip(sequence_names, sequences):
+            text += f"{name}: {seq}\n\n"
+
+
+    # 4. Tree
+    text += f"UPGMA Tree (Newick Format):\n{newick_tree}\n"
+
     return text
+
 
 
 def save_to_text_file(filename, text):
