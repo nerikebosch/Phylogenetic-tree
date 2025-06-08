@@ -47,7 +47,6 @@ def get_text(input_type, match_value, mismatch_value, gap_value,
 
     text = ""
 
-    # 1. Scoring details
     text += f"""Scoring Parameters:
     - Match value: {match_value}
     - Mismatch value: {mismatch_value}
@@ -55,7 +54,6 @@ def get_text(input_type, match_value, mismatch_value, gap_value,
     
     """
 
-    # 2. Input data
     if input_type == "Distance Matrix":
         text += "Input Type: Distance Matrix\n\n"
         text += "Sequence Names:\n"
@@ -71,7 +69,6 @@ def get_text(input_type, match_value, mismatch_value, gap_value,
             text += f"{name}: {seq}\n\n"
 
 
-    # 4. Tree
     text += f"UPGMA Tree (Newick Format):\n{newick_tree}\n"
 
     return text
